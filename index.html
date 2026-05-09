@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>期望值互動網頁</title>
-
 <style>
 body {
     font-family: Arial, "Microsoft JhengHei", sans-serif;
@@ -13,22 +12,19 @@ body {
     padding:30px;
     color:#0f172a;
 }
-
 .container {
     max-width:1100px;
     margin:auto;
 }
-
 h1 {
     text-align:center;
     font-size:48px;
 }
-
 .subtitle {
     text-align:center;
     color:#475569;
+    margin-bottom:25px;
 }
-
 .stats {
     display:flex;
     justify-content:center;
@@ -36,21 +32,18 @@ h1 {
     margin:20px 0 40px;
     flex-wrap:wrap;
 }
-
 .stat-card {
     background:white;
     padding:16px 24px;
     border-radius:18px;
     box-shadow:0 2px 8px rgba(0,0,0,0.08);
     text-align:center;
-    min-width:180px;
+    min-width:200px;
 }
-
 .stat-number {
-    font-size:32px;
+    font-size:34px;
     font-weight:bold;
 }
-
 .card {
     background:white;
     border-radius:20px;
@@ -58,64 +51,51 @@ h1 {
     box-shadow:0 2px 8px rgba(0,0,0,0.08);
     margin-top:25px;
 }
-
-button {
-    padding:10px 16px;
-    border-radius:12px;
-    border:1px solid #cbd5e1;
-    background:white;
-    cursor:pointer;
-    margin-right:10px;
-}
-
-button:hover {
-    background:#e2e8f0;
-}
-
-.primary {
-    background:#0f172a;
-    color:white;
-}
-
 .question {
     border:1px solid #e2e8f0;
     border-radius:16px;
     padding:18px;
     margin-bottom:16px;
 }
-
+button {
+    padding:10px 16px;
+    border-radius:12px;
+    border:1px solid #cbd5e1;
+    background:white;
+    cursor:pointer;
+}
+button:hover {
+    background:#e2e8f0;
+}
+.primary {
+    background:#0f172a;
+    color:white;
+}
 .feedback {
     margin-top:10px;
     padding:10px;
     border-radius:10px;
     display:none;
 }
-
 .correct {
     background:#dcfce7;
     color:#166534;
 }
-
 .wrong {
     background:#fee2e2;
     color:#991b1b;
 }
-
-select {
-    padding:8px;
-    border-radius:8px;
+.explain {
+    display:none;
+    margin-top:10px;
+    background:#f1f5f9;
+    padding:10px;
+    border-radius:10px;
 }
-
 #score {
     margin-top:20px;
     font-size:24px;
     font-weight:bold;
-}
-
-@media(max-width:700px) {
-    h1 {
-        font-size:36px;
-    }
 }
 </style>
 </head>
@@ -133,22 +113,13 @@ select {
 <div class="stats">
     <div class="stat-card">
         <div>👀 瀏覽人數</div>
-        <div class="stat-number" id="views">0</div>
+        <div class="stat-number" id="views">讀取中...</div>
     </div>
 
     <div class="stat-card">
         <div>🏆 滿分人數</div>
-        <div class="stat-number" id="perfect">0</div>
+        <div class="stat-number" id="perfect">讀取中...</div>
     </div>
-</div>
-
-<div class="card">
-    <h2>核心公式</h2>
-    <h3>E(X) = Σ x · P(x)</h3>
-
-    <p>
-    每個結果乘上它的機率，再全部加總。
-    </p>
 </div>
 
 <div class="card">
@@ -156,10 +127,7 @@ select {
 
     <div class="question">
         <h3>第 1 題</h3>
-
-        <p>
-        投一枚公平硬幣，正面得 10 分，反面得 0 分。期望值是多少？
-        </p>
+        <p>投一枚公平硬幣。正面得 10 分，反面得 0 分。期望值是多少？</p>
 
         <select id="q1">
             <option value="">請選擇</option>
@@ -169,14 +137,14 @@ select {
         </select>
 
         <div id="fb1" class="feedback"></div>
+        <div id="ex1" class="explain">
+            解析：10 × 0.5 + 0 × 0.5 = 5
+        </div>
     </div>
 
     <div class="question">
         <h3>第 2 題</h3>
-
-        <p>
-        公平骰子的期望值是多少？
-        </p>
+        <p>公平骰子的期望值是多少？</p>
 
         <select id="q2">
             <option value="">請選擇</option>
@@ -186,6 +154,9 @@ select {
         </select>
 
         <div id="fb2" class="feedback"></div>
+        <div id="ex2" class="explain">
+            解析：(1+2+3+4+5+6) ÷ 6 = 3.5
+        </div>
     </div>
 
     <button class="primary" onclick="checkAnswers()">
@@ -193,37 +164,84 @@ select {
     </button>
 
     <div id="score"></div>
+
 </div>
 
 </div>
 
 <script>
 
-const SCRIPT_URL = "https://script.google.com/a/macros/ibsh.tw/s/AKfycbxHblyiTPCOX9zr6wL6rTYQxcSaS3DEaBd_JHWPuT17IgNm7gL12K9PaH9tG-RBtT5IrQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzL7BtKgAsDYJvDvsmVD3gTpeoCbxdp2umJ87G1kTzByGylAZYN3rK4kWgwlU4gpgQ7Pg/exec";
+let perfectAlreadySent = false;
+
+function callAppsScript(eventName, scoreValue) {
+
+    const callbackName =
+        "callback_" + Date.now() + "_" + Math.floor(Math.random()*10000);
+
+    return new Promise((resolve, reject) => {
+
+        window[callbackName] = function(data) {
+            resolve(data);
+            delete window[callbackName];
+            script.remove();
+        };
+
+        const script = document.createElement("script");
+
+        let url =
+            SCRIPT_URL +
+            "?event=" + encodeURIComponent(eventName) +
+            "&callback=" + callbackName;
+
+        if(scoreValue !== undefined) {
+            url += "&score=" + encodeURIComponent(scoreValue);
+        }
+
+        script.src = url;
+
+        script.onerror = function() {
+            reject();
+        };
+
+        document.body.appendChild(script);
+
+    });
+}
+
+function updateStats(data) {
+
+    document.getElementById("views").innerText =
+        data.views;
+
+    document.getElementById("perfect").innerText =
+        data.perfectScores;
+}
 
 async function trackView() {
-    try {
-        const res = await fetch(SCRIPT_URL + "?event=view");
-        const data = await res.json();
 
-        document.getElementById("views").innerText = data.views;
-        document.getElementById("perfect").innerText = data.perfectScores;
+    try {
+
+        const data =
+            await callAppsScript("view");
+
+        updateStats(data);
 
     } catch(err) {
-        console.log(err);
+
+        document.getElementById("views").innerText = "錯誤";
+        document.getElementById("perfect").innerText = "錯誤";
     }
 }
 
 async function sendPerfectScore() {
+
     try {
-        const res = await fetch(
-            SCRIPT_URL + "?event=perfect_score&score=2"
-        );
 
-        const data = await res.json();
+        const data =
+            await callAppsScript("perfect_score", 2);
 
-        document.getElementById("views").innerText = data.views;
-        document.getElementById("perfect").innerText = data.perfectScores;
+        updateStats(data);
 
     } catch(err) {
         console.log(err);
@@ -232,14 +250,20 @@ async function sendPerfectScore() {
 
 function showFeedback(id, correct) {
 
-    const fb = document.getElementById("fb" + id);
+    const fb =
+        document.getElementById("fb" + id);
+
+    const ex =
+        document.getElementById("ex" + id);
 
     fb.style.display = "block";
+    ex.style.display = "block";
 
     if(correct) {
         fb.className = "feedback correct";
         fb.innerText = "答對了！";
-    } else {
+    }
+    else {
         fb.className = "feedback wrong";
         fb.innerText = "再想想看";
     }
@@ -249,8 +273,11 @@ async function checkAnswers() {
 
     let score = 0;
 
-    const q1 = document.getElementById("q1").value;
-    const q2 = document.getElementById("q2").value;
+    const q1 =
+        document.getElementById("q1").value;
+
+    const q2 =
+        document.getElementById("q2").value;
 
     const c1 = q1 === "5";
     const c2 = q2 === "3.5";
@@ -264,7 +291,10 @@ async function checkAnswers() {
     document.getElementById("score").innerText =
         "你的分數：" + score + " / 2";
 
-    if(score === 2) {
+    if(score === 2 && !perfectAlreadySent) {
+
+        perfectAlreadySent = true;
+
         await sendPerfectScore();
     }
 }
