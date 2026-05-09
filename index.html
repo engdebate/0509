@@ -4,271 +4,273 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>期望值互動網頁</title>
+
 <style>
-body{font-family:Arial,"Microsoft JhengHei",sans-serif;background:#f8fafc;margin:0;padding:30px;color:#0f172a;}
-.container{max-width:1100px;margin:auto;}
-h1{text-align:center;font-size:48px;}
-.subtitle{text-align:center;color:#475569;margin-bottom:40px;}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px;}
-.card{background:white;border-radius:20px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-.big-card{background:white;border-radius:24px;padding:30px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-top:30px;}
-button{padding:10px 16px;border-radius:12px;border:1px solid #cbd5e1;background:white;cursor:pointer;margin-right:10px;margin-bottom:10px;}
-button:hover{background:#e2e8f0;}
-.primary-btn{background:#0f172a;color:white;}
-.primary-btn:hover{background:#334155;}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.entry{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:15px;margin-bottom:12px;}
-input,select{width:90%;padding:8px;margin-top:5px;border:1px solid #cbd5e1;border-radius:8px;}
-.bar{height:10px;background:#0f172a;border-radius:999px;margin-top:8px;}
-.result{background:#0f172a;color:white;border-radius:20px;padding:25px;}
-.result-number{font-size:64px;font-weight:bold;}
-.question{border:1px solid #e2e8f0;border-radius:16px;padding:20px;margin-bottom:18px;background:#ffffff;}
-.feedback{margin-top:10px;padding:12px;border-radius:12px;display:none;}
-.correct{background:#dcfce7;color:#166534;}
-.wrong{background:#fee2e2;color:#991b1b;}
-.explain{background:#f1f5f9;color:#334155;margin-top:10px;padding:12px;border-radius:12px;display:none;}
-.small-note{color:#64748b;font-size:14px;}
-@media(max-width:800px){.row{grid-template-columns:1fr;}h1{font-size:36px;}}
+body {
+    font-family: Arial, "Microsoft JhengHei", sans-serif;
+    background:#f8fafc;
+    margin:0;
+    padding:30px;
+    color:#0f172a;
+}
+
+.container {
+    max-width:1100px;
+    margin:auto;
+}
+
+h1 {
+    text-align:center;
+    font-size:48px;
+}
+
+.subtitle {
+    text-align:center;
+    color:#475569;
+}
+
+.stats {
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin:20px 0 40px;
+    flex-wrap:wrap;
+}
+
+.stat-card {
+    background:white;
+    padding:16px 24px;
+    border-radius:18px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    text-align:center;
+    min-width:180px;
+}
+
+.stat-number {
+    font-size:32px;
+    font-weight:bold;
+}
+
+.card {
+    background:white;
+    border-radius:20px;
+    padding:24px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    margin-top:25px;
+}
+
+button {
+    padding:10px 16px;
+    border-radius:12px;
+    border:1px solid #cbd5e1;
+    background:white;
+    cursor:pointer;
+    margin-right:10px;
+}
+
+button:hover {
+    background:#e2e8f0;
+}
+
+.primary {
+    background:#0f172a;
+    color:white;
+}
+
+.question {
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:16px;
+}
+
+.feedback {
+    margin-top:10px;
+    padding:10px;
+    border-radius:10px;
+    display:none;
+}
+
+.correct {
+    background:#dcfce7;
+    color:#166534;
+}
+
+.wrong {
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+select {
+    padding:8px;
+    border-radius:8px;
+}
+
+#score {
+    margin-top:20px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+@media(max-width:700px) {
+    h1 {
+        font-size:36px;
+    }
+}
 </style>
 </head>
+
 <body>
+
 <div class="container">
 
 <h1>什麼是期望值？</h1>
-<p class="subtitle">期望值不是最可能出現的結果，而是長期平均會接近的數值。</p>
 
-<div class="card-grid">
-    <div class="card">
-        <h2>🧮 核心公式</h2>
-        <h3>E(X) = Σ x · P(x)</h3>
-        <p>每個結果乘上它的機率，再全部加總。</p>
+<p class="subtitle">
+期望值是把每個結果依照機率加權後得到的平均值。
+</p>
+
+<div class="stats">
+    <div class="stat-card">
+        <div>👀 瀏覽人數</div>
+        <div class="stat-number" id="views">0</div>
     </div>
-    <div class="card">
-        <h2>🎲 骰子例子</h2>
-        <p>公平骰子的期望值是 3.5。</p>
-    </div>
-    <div class="card">
-        <h2>📈 為什麼重要？</h2>
-        <p>可以分析抽獎、遊戲、風險與投資。</p>
-    </div>
-</div>
 
-<div class="big-card">
-    <h2>互動實驗</h2>
-    <p class="small-note">調整「結果」和「權重」，觀察期望值如何改變。</p>
-
-    <button onclick="fairDice()">公平骰子</button>
-    <button onclick="biasedDice()">偏向 6 的骰子</button>
-    <button onclick="lottery()">抽獎範例</button>
-
-    <div class="row">
-        <div id="inputs"></div>
-        <div>
-            <div class="result">
-                <div>目前的期望值</div>
-                <div class="result-number" id="ev">0</div>
-            </div>
-            <div class="card" style="margin-top:20px;">
-                <h3>計算過程</h3>
-                <div id="steps"></div>
-            </div>
-        </div>
+    <div class="stat-card">
+        <div>🏆 滿分人數</div>
+        <div class="stat-number" id="perfect">0</div>
     </div>
 </div>
 
-<div class="big-card">
+<div class="card">
+    <h2>核心公式</h2>
+    <h3>E(X) = Σ x · P(x)</h3>
+
+    <p>
+    每個結果乘上它的機率，再全部加總。
+    </p>
+</div>
+
+<div class="card">
     <h2>練習題</h2>
-    <p class="small-note">完成後按下「檢查答案」，系統會顯示答案與解析。</p>
 
     <div class="question">
-        <h3>第 1 題：公平硬幣</h3>
-        <p>投一枚公平硬幣。正面得 10 分，反面得 0 分。期望值是多少？</p>
+        <h3>第 1 題</h3>
+
+        <p>
+        投一枚公平硬幣，正面得 10 分，反面得 0 分。期望值是多少？
+        </p>
+
         <select id="q1">
             <option value="">請選擇</option>
             <option value="0">0</option>
             <option value="5">5</option>
             <option value="10">10</option>
-            <option value="20">20</option>
         </select>
+
         <div id="fb1" class="feedback"></div>
-        <div id="ex1" class="explain">解析：E(X) = 10 × 0.5 + 0 × 0.5 = 5。</div>
     </div>
 
     <div class="question">
-        <h3>第 2 題：公平骰子</h3>
-        <p>擲一顆公平骰子，點數就是得分。期望值是多少？</p>
+        <h3>第 2 題</h3>
+
+        <p>
+        公平骰子的期望值是多少？
+        </p>
+
         <select id="q2">
             <option value="">請選擇</option>
             <option value="3">3</option>
             <option value="3.5">3.5</option>
-            <option value="4">4</option>
             <option value="6">6</option>
         </select>
+
         <div id="fb2" class="feedback"></div>
-        <div id="ex2" class="explain">解析：E(X) = (1+2+3+4+5+6) ÷ 6 = 21 ÷ 6 = 3.5。</div>
     </div>
 
-    <div class="question">
-        <h3>第 3 題：抽獎遊戲</h3>
-        <p>有 20% 的機率得到 100 元，80% 的機率得到 0 元。玩一次的期望值是多少？</p>
-        <select id="q3">
-            <option value="">請選擇</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-        <div id="fb3" class="feedback"></div>
-        <div id="ex3" class="explain">解析：E(X) = 100 × 0.2 + 0 × 0.8 = 20。</div>
-    </div>
+    <button class="primary" onclick="checkAnswers()">
+        檢查答案
+    </button>
 
-    <div class="question">
-        <h3>第 4 題：是否划算？</h3>
-        <p>某遊戲要花 30 元參加。你有 20% 的機率得到 100 元，80% 的機率得到 0 元。扣掉成本後，期望值是多少？</p>
-        <select id="q4">
-            <option value="">請選擇</option>
-            <option value="-30">-30</option>
-            <option value="-10">-10</option>
-            <option value="20">20</option>
-            <option value="70">70</option>
-        </select>
-        <div id="fb4" class="feedback"></div>
-        <div id="ex4" class="explain">解析：中獎前的期望值是 100 × 0.2 + 0 × 0.8 = 20。扣掉參加費 30 元，所以 20 - 30 = -10。</div>
-    </div>
-
-    <div class="question">
-        <h3>第 5 題：自己算算看</h3>
-        <p>有 25% 的機率得到 80 分，75% 的機率得到 40 分。期望值是多少？</p>
-        <input id="q5" type="number" placeholder="請輸入答案">
-        <div id="fb5" class="feedback"></div>
-        <div id="ex5" class="explain">解析：E(X) = 80 × 0.25 + 40 × 0.75 = 20 + 30 = 50。</div>
-    </div>
-
-    <button class="primary-btn" onclick="checkAnswers()">檢查答案</button>
-    <button onclick="resetQuiz()">重新作答</button>
-    <h3 id="score" style="margin-top:20px;"></h3>
+    <div id="score"></div>
 </div>
 
 </div>
 
 <script>
-let values = [1,2,3,4,5,6];
-let weights = [1,1,1,1,1,1];
 
-function probabilities(){
-    let total = weights.reduce((a,b)=>a+b,0);
-    return weights.map(w => total===0 ? 0 : w/total);
-}
+const SCRIPT_URL = "https://script.google.com/a/macros/ibsh.tw/s/AKfycbxHblyiTPCOX9zr6wL6rTYQxcSaS3DEaBd_JHWPuT17IgNm7gL12K9PaH9tG-RBtT5IrQ/exec";
 
-function expectedValue(){
-    let probs = probabilities();
-    let total = 0;
-    for(let i=0;i<values.length;i++){
-        total += values[i]*probs[i];
+async function trackView() {
+    try {
+        const res = await fetch(SCRIPT_URL + "?event=view");
+        const data = await res.json();
+
+        document.getElementById("views").innerText = data.views;
+        document.getElementById("perfect").innerText = data.perfectScores;
+
+    } catch(err) {
+        console.log(err);
     }
-    return total;
 }
 
-function render(){
-    let probs = probabilities();
-    let html = "";
-    for(let i=0;i<values.length;i++){
-        html += `
-        <div class="entry">
-            <strong>#${i+1}</strong><br><br>
-            結果 x<br>
-            <input type="number" value="${values[i]}" onchange="updateValue(${i}, this.value)"><br><br>
-            權重<br>
-            <input type="number" value="${weights[i]}" onchange="updateWeight(${i}, this.value)">
-            <div style="margin-top:10px;">
-                機率：${(probs[i]*100).toFixed(1)}%
-                <div class="bar" style="width:${probs[i]*100}%"></div>
-            </div>
-        </div>`;
+async function sendPerfectScore() {
+    try {
+        const res = await fetch(
+            SCRIPT_URL + "?event=perfect_score&score=2"
+        );
+
+        const data = await res.json();
+
+        document.getElementById("views").innerText = data.views;
+        document.getElementById("perfect").innerText = data.perfectScores;
+
+    } catch(err) {
+        console.log(err);
     }
-
-    document.getElementById("inputs").innerHTML = html;
-    document.getElementById("ev").innerText = expectedValue().toFixed(3);
-
-    let steps = "";
-    for(let i=0;i<values.length;i++){
-        steps += `<div style="margin-bottom:8px;">${values[i]} × ${probs[i].toFixed(3)} = ${(values[i]*probs[i]).toFixed(3)}</div>`;
-    }
-    document.getElementById("steps").innerHTML = steps;
 }
 
-function updateValue(index,val){
-    values[index] = Number(val);
-    render();
-}
+function showFeedback(id, correct) {
 
-function updateWeight(index,val){
-    weights[index] = Math.max(0, Number(val));
-    render();
-}
-
-function fairDice(){
-    values=[1,2,3,4,5,6];
-    weights=[1,1,1,1,1,1];
-    render();
-}
-
-function biasedDice(){
-    values=[1,2,3,4,5,6];
-    weights=[1,1,1,1,1,5];
-    render();
-}
-
-function lottery(){
-    values=[-10,0,20,50,100,200];
-    weights=[40,30,15,10,4,1];
-    render();
-}
-
-function showFeedback(id, isCorrect){
     const fb = document.getElementById("fb" + id);
-    const ex = document.getElementById("ex" + id);
-    fb.style.display = "block";
-    ex.style.display = "block";
 
-    if(isCorrect){
+    fb.style.display = "block";
+
+    if(correct) {
         fb.className = "feedback correct";
         fb.innerText = "答對了！";
-    }else{
+    } else {
         fb.className = "feedback wrong";
-        fb.innerText = "再想想看。";
+        fb.innerText = "再想想看";
     }
 }
 
-function checkAnswers(){
+async function checkAnswers() {
+
     let score = 0;
-    const answers = {q1:"5", q2:"3.5", q3:"20", q4:"-10"};
 
-    for(let i=1;i<=4;i++){
-        const value = document.getElementById("q" + i).value;
-        const correct = value === answers["q" + i];
-        if(correct) score++;
-        showFeedback(i, correct);
+    const q1 = document.getElementById("q1").value;
+    const q2 = document.getElementById("q2").value;
+
+    const c1 = q1 === "5";
+    const c2 = q2 === "3.5";
+
+    if(c1) score++;
+    if(c2) score++;
+
+    showFeedback(1, c1);
+    showFeedback(2, c2);
+
+    document.getElementById("score").innerText =
+        "你的分數：" + score + " / 2";
+
+    if(score === 2) {
+        await sendPerfectScore();
     }
-
-    const q5 = Number(document.getElementById("q5").value);
-    const q5Correct = Math.abs(q5 - 50) < 0.001;
-    if(q5Correct) score++;
-    showFeedback(5, q5Correct);
-
-    document.getElementById("score").innerText = `你的分數：${score} / 5`;
 }
 
-function resetQuiz(){
-    for(let i=1;i<=5;i++){
-        document.getElementById("q" + i).value = "";
-        document.getElementById("fb" + i).style.display = "none";
-        document.getElementById("ex" + i).style.display = "none";
-    }
-    document.getElementById("score").innerText = "";
-}
+trackView();
 
-render();
 </script>
 
 </body>
